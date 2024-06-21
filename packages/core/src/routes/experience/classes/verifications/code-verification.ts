@@ -18,32 +18,27 @@ import { findUserByIdentifier } from '../../utils.js';
 
 import { type Verification } from './verification.js';
 
+const eventToTemplateTypeMap: Record<InteractionEvent, TemplateType> = {
+  SignIn: TemplateType.SignIn,
+  Register: TemplateType.Register,
+  ForgotPassword: TemplateType.ForgotPassword,
+};
+
 /**
  * To make the typescript type checking work. A valid TemplateType is required.
  * This is a work around to map the latest interaction event type to old TemplateType.
  *
  * @remark This is a temporary solution until the connector-kit is updated to use the latest interaction event types.
  **/
-const eventToTemplateTypeMap: Record<InteractionEvent, TemplateType> = {
-  SignIn: TemplateType.SignIn,
-  Register: TemplateType.Register,
-  ForgotPassword: TemplateType.ForgotPassword,
-};
 const getTemplateTypeByEvent = (event: InteractionEvent): TemplateType =>
   eventToTemplateTypeMap[event];
 
+/** The JSON data type for the CodeVerification record */
 export type CodeVerificationRecordData = {
   id: string;
   type: VerificationType.VerificationCode;
   identifier: VerificationCodeIdentifier;
-  /**
-   * The interaction event that triggered the verification.
-   * This will be used to determine the template type for the verification code.
-   * @remark
-   * `InteractionEvent.ForgotPassword` triggered verification results can not used as a verification record for other events.
-   */
   interactionEvent: InteractionEvent;
-  /** The userId of the user that has been verified. Only available after the verification of existing identifier */
   userId?: string;
   verified: boolean;
 };
@@ -75,7 +70,7 @@ const getPasscodeIdentifierPayload = (
 export class CodeVerification implements Verification {
   /**
    * Factory method to create a new CodeVerification record using the given identifier.
-   * The sendVerificationCode method will be automatically triggered on the creation of the record.
+   * The sendVerificationCode method will be automatically triggered.
    */
   static async create(
     libraries: Libraries,
@@ -96,10 +91,18 @@ export class CodeVerification implements Verification {
     return record;
   }
 
-  readonly type = VerificationType.VerificationCode;
+  public readonly type = VerificationType.VerificationCode;
   public readonly identifier: VerificationCodeIdentifier;
   public readonly id: string;
+  /**
+   * The interaction event that triggered the verification.
+   * This will be used to determine the template type for the verification code.
+   *
+   * @remark
+   * `InteractionEvent.ForgotPassword` triggered verification results can not used as a verification record for other events.
+   */
   private readonly interactionEvent: InteractionEvent;
+  /** The userId  will be set after the verification if the identifier matches any existing user's record */
   private userId?: string;
   private verified: boolean;
 
