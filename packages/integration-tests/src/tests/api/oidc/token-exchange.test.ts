@@ -109,5 +109,28 @@ describe('Token Exchange', () => {
         })
       ).rejects.toThrow();
     });
+
+    it('should fail with a third-party application', async () => {
+      const { subjectToken } = await createSubjectToken(userId);
+      const thirdPartyApplication = await createApplication(
+        'third-party-app',
+        ApplicationType.SPA,
+        { isThirdParty: true }
+      );
+
+      await expect(
+        oidcApi.post('token', {
+          headers: formUrlEncodedHeaders,
+          body: new URLSearchParams({
+            client_id: thirdPartyApplication.id,
+            grant_type: GrantType.TokenExchange,
+            subject_token: subjectToken,
+            subject_token_type: 'urn:ietf:params:oauth:token-type:access_token',
+          }),
+        })
+      ).rejects.toThrow();
+
+      await deleteApplication(thirdPartyApplication.id);
+    });
   });
 });
