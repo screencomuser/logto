@@ -15,11 +15,18 @@ function FurtherReadings(props: Props, ref?: Ref<HTMLDivElement>) {
     <Step ref={ref} {...stepProps}>
       <ul>
         {fullGuide && (
-          <li>
-            <TextLink href={fullGuide.url} targetBlank="noopener">
-              {fullGuide.title}
-            </TextLink>
-          </li>
+          <>
+            <li>
+              <TextLink href={`${fullGuide.url}/#get-user-information`} targetBlank="noopener">
+                Get user information
+              </TextLink>
+            </li>
+            <li>
+              <TextLink href={`${fullGuide.url}/#api-resources`} targetBlank="noopener">
+                API resources
+              </TextLink>
+            </li>
+          </>
         )}
         <li>
           <TextLink href="https://docs.logto.io/docs/recipes/customize-sie/" targetBlank="noopener">
