@@ -6,6 +6,7 @@ import { type EnvSet } from '#src/env-set/index.js';
 import type Queries from '#src/tenants/Queries.js';
 
 import * as refreshToken from './refresh-token.js';
+import * as tokenExchange from './token-exchange.js';
 
 export const registerGrants = (oidc: Provider, envSet: EnvSet, queries: Queries) => {
   const {
@@ -23,5 +24,16 @@ export const registerGrants = (oidc: Provider, envSet: EnvSet, queries: Queries)
     GrantType.RefreshToken,
     refreshToken.buildHandler(envSet, queries),
     ...parameterConfig
+  );
+
+  // Token exchange grant
+  const tokenExchangeParameterConfig: [parameters: string[], duplicates: string[]] =
+    resourceIndicators.enabled
+      ? [[...tokenExchange.parameters, 'resource'], ['resource']]
+      : [[...tokenExchange.parameters], []];
+  oidc.registerGrantType(
+    GrantType.TokenExchange,
+    tokenExchange.buildHandler(envSet, queries),
+    ...tokenExchangeParameterConfig
   );
 };
