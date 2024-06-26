@@ -87,7 +87,7 @@ export default function verificationCodeRoutes<T extends WithLogContext>(
       await ctx.interactionSession.save();
 
       ctx.body = {
-        verificationId,
+        verificationId: codeVerificationRecord.id,
       };
 
       return next();
